@@ -2,14 +2,15 @@
 
 import { v } from "convex/values";
 import { action } from "./_generated/server";
-import { api } from "./_generated/api";
+import { api, internal } from "./_generated/api";
+import type { Doc } from "./_generated/dataModel";
 
 export const generateDish = action({
   args: {
     ingredient1: v.string(),
     ingredient2: v.string(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{ name: string; emoji: string; imageUrl?: string }> => {
     const openRouterApiKey = process.env.OPENROUTER_API_KEY;
     const stabilityApiKey = process.env.STABILITY_API_KEY;
 
@@ -18,7 +19,7 @@ export const generateDish = action({
     }
 
     // Check cache first
-    const cached = await ctx.runQuery(api.discoveries.findCombination, {
+    const cached: Doc<"discoveries"> | null = await ctx.runQuery(internal.discoveries.findCombination, {
       ingredient1: args.ingredient1,
       ingredient2: args.ingredient2,
     });
@@ -109,7 +110,7 @@ export const generateDish = action({
     }
 
     // Save to cache
-    await ctx.runMutation(api.discoveries.saveCombination, {
+    await ctx.runMutation(internal.discoveries.saveCombination, {
       ingredient1: args.ingredient1,
       ingredient2: args.ingredient2,
       resultName: result.name,

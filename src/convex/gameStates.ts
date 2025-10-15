@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
 
 // Create or update a game state
 export const saveGameState = mutation({
@@ -50,17 +50,27 @@ export const loadGameState = query({
       return null;
     }
 
-    // Update last accessed time
-    await ctx.db.patch(gameState._id, {
-      lastAccessed: Date.now(),
-    });
-
     return gameState;
   },
 });
 
+// Add public mutation to update lastAccessed time for a game
+export const updateLastAccessed = mutation({
+  args: { gameId: v.string() },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("gameStates")
+      .withIndex("by_gameId", (q) => q.eq("gameId", args.gameId))
+      .unique();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, { lastAccessed: Date.now() });
+    }
+  },
+});
+
 // Clean up old game states (30+ days)
-export const cleanupOldGames = mutation({
+export const cleanupOldGames = internalMutation({
   args: {},
   handler: async (ctx) => {
     const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;

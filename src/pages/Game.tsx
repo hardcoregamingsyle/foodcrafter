@@ -44,6 +44,7 @@ export default function Game() {
   const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   const saveGameState = useMutation(api.gameStates.saveGameState);
+  const updateLastAccessed = useMutation(api.gameStates.updateLastAccessed);
   const generateDish = useAction(api.ai.generateDish);
 
   // Load game from URL parameter
@@ -52,7 +53,6 @@ export default function Game() {
     const loadGameId = params.get("load");
     if (loadGameId) {
       setGameId(loadGameId);
-      loadGame(loadGameId);
     } else {
       // Generate new game ID
       const newGameId = Math.random().toString(36).substring(2, 15);
@@ -65,18 +65,14 @@ export default function Game() {
     gameId ? { gameId } : "skip"
   );
 
-  const loadGame = async (id: string) => {
-    if (loadGameQuery) {
-      setIngredients(loadGameQuery.discoveries);
-      toast.success("Game loaded successfully!");
-    }
-  };
-
   useEffect(() => {
     if (loadGameQuery && gameId) {
       setIngredients(loadGameQuery.discoveries);
+      // Update last accessed time
+      updateLastAccessed({ gameId });
+      toast.success("Game loaded successfully!");
     }
-  }, [loadGameQuery]);
+  }, [loadGameQuery, gameId]);
 
   const handleDragStart = (id: string) => {
     setDraggedId(id);
@@ -98,7 +94,7 @@ export default function Game() {
     } else if (!combineSlot2 && ingredient.id !== combineSlot1.id) {
       setCombineSlot2(ingredient);
       // Trigger combination
-      await combinIngredients(combineSlot1, ingredient);
+      await combineIngredients(combineSlot1, ingredient);
     }
   };
 

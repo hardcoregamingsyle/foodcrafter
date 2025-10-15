@@ -3,11 +3,13 @@ import { internal } from "./_generated/api";
 
 const crons = cronJobs();
 
-// Clean up old game states daily at 3 AM
-crons.daily(
+// Run cleanup every 24 hours
+crons.interval(
   "cleanup old games",
-  { hourUTC: 3, minuteUTC: 0 },
-  internal.gameStates.cleanupOldGames
+  { hours: 24 },
+  // Cast to any to avoid typegen timing issues during initial builds
+  (internal as any).gameStates.cleanupOldGames,
+  {}
 );
 
 export default crons;

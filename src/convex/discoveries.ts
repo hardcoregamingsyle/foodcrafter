@@ -1,8 +1,8 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, internalQuery } from "./_generated/server";
 
 // Check if a combination already exists
-export const findCombination = query({
+export const findCombination = internalQuery({
   args: {
     ingredient1: v.string(),
     ingredient2: v.string(),
@@ -23,7 +23,7 @@ export const findCombination = query({
 });
 
 // Save a new discovery
-export const saveCombination = mutation({
+export const saveCombination = internalMutation({
   args: {
     ingredient1: v.string(),
     ingredient2: v.string(),
