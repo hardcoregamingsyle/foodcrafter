@@ -11,11 +11,11 @@ export const generateDish = action({
     ingredient2: v.string(),
   },
   handler: async (ctx, args): Promise<{ name: string; emoji: string; imageUrl?: string }> => {
-    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    const geminiApiKey = process.env.GEMINI_API_KEY;
     const stabilityApiKey = process.env.STABILITY_API_KEY;
 
-    if (!openRouterApiKey) {
-      throw new Error("OPENROUTER_API_KEY not configured");
+    if (!geminiApiKey) {
+      throw new Error("GEMINI_API_KEY not configured");
     }
 
     // Check cache first
@@ -32,19 +32,16 @@ export const generateDish = action({
       };
     }
 
-    // Generate dish name and emoji using AI with Indian cuisine context
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    // Generate dish name and emoji using Gemini 2.5 with Indian cuisine context
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${openRouterApiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3.1-8b-instruct:free",
-        messages: [
-          {
-            role: "user",
-            content: `You are a creative Indian chef creating fusion dishes and ingredients. Combine "${args.ingredient1}" and "${args.ingredient2}" into a new dish, ingredient, or food concept inspired by Indian cuisine. 
+        contents: [{
+          parts: [{
+            text: `You are a creative Indian chef creating fusion dishes and ingredients. Combine "${args.ingredient1}" and "${args.ingredient2}" into a new dish, ingredient, or food concept inspired by Indian cuisine. 
 
 Consider traditional Indian cooking methods like:
 - Tadka (tempering), grinding, roasting, fermenting
@@ -54,18 +51,24 @@ Consider traditional Indian cooking methods like:
 
 Respond ONLY with a JSON object in this exact format: {"name": "Dish Name", "emoji": "🍛"}. 
 
-Be creative and authentic to Indian culinary traditions! The name should be 1-4 words max and can use Hindi/regional names if appropriate (like "Masala Dosa", "Paneer Tikka", "Jeera Rice", etc).`,
-          },
-        ],
+Be creative and authentic to Indian culinary traditions! The name should be 1-4 words max and can use Hindi/regional names if appropriate (like "Masala Dosa", "Paneer Tikka", "Jeera Rice", etc).`
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.9,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 1024,
+        }
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`OpenRouter API error: ${response.statusText}`);
+      throw new Error(`Gemini API error: ${response.statusText}`);
     }
 
     const data = await response.json();
-    const content = data.choices[0].message.content;
+    const content = data.candidates[0].content.parts[0].text;
     
     // Parse the JSON response
     let result;
