@@ -9,6 +9,8 @@ export const generateDish = action({
   args: {
     ingredient1: v.string(),
     ingredient2: v.string(),
+    ingredient1Genealogy: v.optional(v.array(v.string())),
+    ingredient2Genealogy: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args): Promise<{ name: string; emoji: string; imageUrl?: string }> => {
     const geminiApiKey = process.env.GEMINI_API_KEY;
@@ -32,16 +34,23 @@ export const generateDish = action({
       };
     }
 
-    // Generate dish name and emoji using Gemini 2.5 with Indian cuisine context
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: `You are a creative Indian chef creating fusion dishes and ingredients. Combine "${args.ingredient1}" and "${args.ingredient2}" into a new dish, ingredient, or food concept inspired by Indian cuisine. 
+    // Build genealogy context for AI
+    let genealogyContext = "";
+    
+    if (args.ingredient1Genealogy && args.ingredient1Genealogy.length > 0) {
+      genealogyContext += `\nItem: "${args.ingredient1}"\nMade From:\n${args.ingredient1Genealogy.map(parent => `- "${parent}"`).join("\n")}`;
+    }
+    
+    if (args.ingredient2Genealogy && args.ingredient2Genealogy.length > 0) {
+      genealogyContext += `\n\nItem: "${args.ingredient2}"\nMade From:\n${args.ingredient2Genealogy.map(parent => `- "${parent}"`).join("\n")}`;
+    }
+
+    const promptText = `### ACTION
+Combine: ["${args.ingredient1}"] + ["${args.ingredient2}"]
+
+### KNOWLEDGE${genealogyContext ? "\n" + genealogyContext : "\nBoth ingredients are core ingredients with no crafting history."}
+
+You are a creative Indian chef creating fusion dishes and ingredients. Based on the combination above and the knowledge of how these ingredients were made, create a new dish, ingredient, or food concept inspired by Indian cuisine.
 
 Consider traditional Indian cooking methods like:
 - Tadka (tempering), grinding, roasting, fermenting
@@ -51,7 +60,18 @@ Consider traditional Indian cooking methods like:
 
 Respond ONLY with a JSON object in this exact format: {"name": "Dish Name", "emoji": "🍛"}. 
 
-Be creative and authentic to Indian culinary traditions! The name should be 1-4 words max and can use Hindi/regional names if appropriate (like "Masala Dosa", "Paneer Tikka", "Jeera Rice", etc).`
+Be creative and authentic to Indian culinary traditions! The name should be 1-4 words max and can use Hindi/regional names if appropriate (like "Masala Dosa", "Paneer Tikka", "Jeera Rice", etc).`;
+
+    // Generate dish name and emoji using Gemini 2.5 with Indian cuisine context
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: promptText
           }]
         }],
         generationConfig: {

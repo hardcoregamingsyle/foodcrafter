@@ -24,6 +24,7 @@ interface Ingredient {
   emoji: string;
   imageUrl?: string;
   isBase: boolean;
+  madeFrom?: string[]; // parent ingredient names
 }
 
 // Indian cooking fundamentals as base ingredients
@@ -248,6 +249,7 @@ export default function Game() {
           name: "Soil with Seed",
           emoji: "🌱🌰",
           isBase: false,
+          madeFrom: [ing1.name, ing2.name],
         };
         
         const exists = ingredients.some((i) => i.name === newIngredient.name);
@@ -269,6 +271,7 @@ export default function Game() {
           name: randomSeed.name,
           emoji: randomSeed.emoji,
           isBase: false,
+          // Germinated seeds are treated as core ingredients - no genealogy shown
         };
         
         const exists = ingredients.some((i) => i.name === newIngredient.name);
@@ -284,9 +287,15 @@ export default function Game() {
       }
 
       // Regular AI combination for all other cases
+      // Only include genealogy for non-base, non-germinated ingredients
+      const ing1Genealogy = (!ing1.isBase && ing1.madeFrom) ? ing1.madeFrom : undefined;
+      const ing2Genealogy = (!ing2.isBase && ing2.madeFrom) ? ing2.madeFrom : undefined;
+      
       const result = await generateDish({
         ingredient1: ing1.name,
         ingredient2: ing2.name,
+        ingredient1Genealogy: ing1Genealogy,
+        ingredient2Genealogy: ing2Genealogy,
       });
 
       const newIngredient: Ingredient = {
@@ -295,6 +304,7 @@ export default function Game() {
         emoji: result.emoji,
         imageUrl: result.imageUrl,
         isBase: false,
+        madeFrom: [ing1.name, ing2.name],
       };
 
       const exists = ingredients.some((i) => i.name === newIngredient.name);

@@ -40,6 +40,7 @@ const schema = defineSchema(
           emoji: v.string(),
           imageUrl: v.optional(v.string()),
           isBase: v.boolean(),
+          madeFrom: v.optional(v.array(v.string())), // parent ingredient names
         })
       ),
       lastAccessed: v.number(),
