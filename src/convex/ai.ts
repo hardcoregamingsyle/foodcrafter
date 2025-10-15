@@ -56,6 +56,8 @@ Rules:
 - Consider Indian cuisine traditions when appropriate
 - IMPORTANT: Create a NEW item that represents what these ingredients become when combined, not just their names joined together
 - Think about what happens when you actually combine these ingredients in cooking (e.g., Salt + Sugar = "Sweet Brine" or "Seasoning Mix", not "Salt Sugar")
+- NEVER just concatenate the ingredient names. Stone + Lentil = "Ground Lentils" or "Lentil Paste", NOT "Stone Lentil"
+- Think about the PURPOSE and RESULT of combining these items in real cooking
 
 ### ACTION
 Combine: ["${args.ingredient1}"] + ["${args.ingredient2}"]
