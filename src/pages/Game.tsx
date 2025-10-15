@@ -26,12 +26,150 @@ interface Ingredient {
   isBase: boolean;
 }
 
+// Indian cooking fundamentals as base ingredients
 const BASE_INGREDIENTS: Ingredient[] = [
   { id: "water", name: "Water", emoji: "💧", isBase: true },
-  { id: "fire", name: "Fire", emoji: "🔥", isBase: true },
-  { id: "earth", name: "Earth", emoji: "🌍", isBase: true },
-  { id: "air", name: "Air", emoji: "💨", isBase: true },
+  { id: "heat", name: "Heat", emoji: "🔥", isBase: true },
+  { id: "soil", name: "Soil", emoji: "🌱", isBase: true },
+  { id: "wheat", name: "Wheat", emoji: "🌾", isBase: true },
+  { id: "rice", name: "Rice", emoji: "🍚", isBase: true },
+  { id: "seed", name: "Seed", emoji: "🌰", isBase: true },
+  { id: "lentil", name: "Lentil", emoji: "🥣", isBase: true },
+  { id: "stone", name: "Stone", emoji: "🪨", isBase: true },
+  { id: "pot", name: "Pot", emoji: "🏺", isBase: true },
+  { id: "milk", name: "Milk", emoji: "🥛", isBase: true },
+  { id: "salt", name: "Salt", emoji: "🧂", isBase: true },
+  { id: "sugar", name: "Sugar", emoji: "🍬", isBase: true },
 ];
+
+// Comprehensive seed database organized by category
+const SEED_DATABASE = [
+  // Spice Seeds
+  { name: "Cumin Seed", emoji: "🌿", category: "Spice Seeds" },
+  { name: "Black Mustard Seed", emoji: "⚫", category: "Spice Seeds" },
+  { name: "Yellow Mustard Seed", emoji: "🟡", category: "Spice Seeds" },
+  { name: "Coriander Seed", emoji: "🌿", category: "Spice Seeds" },
+  { name: "Fennel Seed", emoji: "🌿", category: "Spice Seeds" },
+  { name: "Fenugreek Seed", emoji: "🌿", category: "Spice Seeds" },
+  { name: "Carom Seed", emoji: "🌿", category: "Spice Seeds" },
+  { name: "Nigella Seed", emoji: "⚫", category: "Spice Seeds" },
+  { name: "Green Cardamom", emoji: "💚", category: "Spice Seeds" },
+  { name: "Black Cardamom", emoji: "🖤", category: "Spice Seeds" },
+  { name: "Black Peppercorn", emoji: "⚫", category: "Spice Seeds" },
+  { name: "Clove", emoji: "🌰", category: "Spice Seeds" },
+  { name: "Pomegranate Seed", emoji: "🔴", category: "Spice Seeds" },
+  { name: "Dill Seed", emoji: "🌿", category: "Spice Seeds" },
+  { name: "Celery Seed", emoji: "🌿", category: "Spice Seeds" },
+  
+  // Grains & Millets
+  { name: "Basmati Rice", emoji: "🍚", category: "Grains & Millets" },
+  { name: "Sona Masuri Rice", emoji: "🍚", category: "Grains & Millets" },
+  { name: "Whole Wheat", emoji: "🌾", category: "Grains & Millets" },
+  { name: "Pearl Millet", emoji: "🌾", category: "Grains & Millets" },
+  { name: "Sorghum", emoji: "🌾", category: "Grains & Millets" },
+  { name: "Finger Millet", emoji: "🌾", category: "Grains & Millets" },
+  { name: "Foxtail Millet", emoji: "🌾", category: "Grains & Millets" },
+  { name: "Barley", emoji: "🌾", category: "Grains & Millets" },
+  { name: "Amaranth Seed", emoji: "🌾", category: "Grains & Millets" },
+  { name: "Buckwheat", emoji: "🌾", category: "Grains & Millets" },
+  
+  // Lentils & Pulses
+  { name: "Toor Dal", emoji: "🟡", category: "Lentils & Pulses" },
+  { name: "Masoor Dal", emoji: "🔴", category: "Lentils & Pulses" },
+  { name: "Mung Dal", emoji: "🟢", category: "Lentils & Pulses" },
+  { name: "Urad Dal", emoji: "⚫", category: "Lentils & Pulses" },
+  { name: "Chana Dal", emoji: "🟡", category: "Lentils & Pulses" },
+  { name: "Whole Mung Bean", emoji: "🟢", category: "Lentils & Pulses" },
+  { name: "Whole Urad", emoji: "⚫", category: "Lentils & Pulses" },
+  { name: "Kabuli Chickpea", emoji: "🤍", category: "Lentils & Pulses" },
+  { name: "Brown Chickpea", emoji: "🟤", category: "Lentils & Pulses" },
+  { name: "Kidney Bean", emoji: "🔴", category: "Lentils & Pulses" },
+  { name: "Black-Eyed Pea", emoji: "⚪", category: "Lentils & Pulses" },
+  { name: "Moth Bean", emoji: "🟤", category: "Lentils & Pulses" },
+  { name: "Horse Gram", emoji: "🟤", category: "Lentils & Pulses" },
+  { name: "Soybean", emoji: "🟡", category: "Lentils & Pulses" },
+  { name: "Field Bean", emoji: "🟢", category: "Lentils & Pulses" },
+  { name: "Green Pea", emoji: "🟢", category: "Lentils & Pulses" },
+  { name: "Cowpea", emoji: "🤍", category: "Lentils & Pulses" },
+  { name: "Whole Red Lentil", emoji: "🔴", category: "Lentils & Pulses" },
+  
+  // Nuts & Dry Fruits
+  { name: "Almond", emoji: "🌰", category: "Nuts & Dry Fruits" },
+  { name: "Cashew Nut", emoji: "🥜", category: "Nuts & Dry Fruits" },
+  { name: "Pistachio", emoji: "🟢", category: "Nuts & Dry Fruits" },
+  { name: "Walnut", emoji: "🌰", category: "Nuts & Dry Fruits" },
+  { name: "Peanut", emoji: "🥜", category: "Nuts & Dry Fruits" },
+  { name: "Coconut", emoji: "🥥", category: "Nuts & Dry Fruits" },
+  { name: "Fox Nut", emoji: "⚪", category: "Nuts & Dry Fruits" },
+  { name: "Pine Nut", emoji: "🌰", category: "Nuts & Dry Fruits" },
+  { name: "Apricot Kernel", emoji: "🟠", category: "Nuts & Dry Fruits" },
+  { name: "Chironji", emoji: "🌰", category: "Nuts & Dry Fruits" },
+  { name: "Date", emoji: "🟤", category: "Nuts & Dry Fruits" },
+  { name: "Raisin", emoji: "🟣", category: "Nuts & Dry Fruits" },
+  
+  // Vegetable Seeds
+  { name: "Okra Seed", emoji: "🌱", category: "Vegetable Seeds" },
+  { name: "Eggplant Seed", emoji: "🍆", category: "Vegetable Seeds" },
+  { name: "Tomato Seed", emoji: "🍅", category: "Vegetable Seeds" },
+  { name: "Chili Pepper Seed", emoji: "🌶️", category: "Vegetable Seeds" },
+  { name: "Bell Pepper Seed", emoji: "🫑", category: "Vegetable Seeds" },
+  { name: "Cucumber Seed", emoji: "🥒", category: "Vegetable Seeds" },
+  { name: "Bottle Gourd Seed", emoji: "🌱", category: "Vegetable Seeds" },
+  { name: "Bitter Gourd Seed", emoji: "🌱", category: "Vegetable Seeds" },
+  { name: "Ridge Gourd Seed", emoji: "🌱", category: "Vegetable Seeds" },
+  { name: "Pumpkin Seed", emoji: "🎃", category: "Vegetable Seeds" },
+  { name: "Radish Seed", emoji: "🌱", category: "Vegetable Seeds" },
+  { name: "Carrot Seed", emoji: "🥕", category: "Vegetable Seeds" },
+  { name: "Onion Seed", emoji: "🧅", category: "Vegetable Seeds" },
+  { name: "Cauliflower Seed", emoji: "🌱", category: "Vegetable Seeds" },
+  { name: "Cabbage Seed", emoji: "🥬", category: "Vegetable Seeds" },
+  
+  // Fruit Seeds
+  { name: "Mango Seed", emoji: "🥭", category: "Fruit Seeds" },
+  { name: "Tamarind Seed", emoji: "🟤", category: "Fruit Seeds" },
+  { name: "Jamun Seed", emoji: "🟣", category: "Fruit Seeds" },
+  { name: "Jackfruit Seed", emoji: "🟡", category: "Fruit Seeds" },
+  { name: "Guava Seed", emoji: "🟢", category: "Fruit Seeds" },
+  { name: "Papaya Seed", emoji: "🟠", category: "Fruit Seeds" },
+  { name: "Watermelon Seed", emoji: "🍉", category: "Fruit Seeds" },
+  { name: "Muskmelon Seed", emoji: "🍈", category: "Fruit Seeds" },
+  { name: "Amla Seed", emoji: "🟢", category: "Fruit Seeds" },
+  { name: "Ber Seed", emoji: "🟤", category: "Fruit Seeds" },
+  
+  // Herb & Green Seeds
+  { name: "Spinach Seed", emoji: "🥬", category: "Herb & Green Seeds" },
+  { name: "Mustard Greens Seed", emoji: "🥬", category: "Herb & Green Seeds" },
+  { name: "Fenugreek Greens Seed", emoji: "🌿", category: "Herb & Green Seeds" },
+  { name: "Amaranth Greens Seed", emoji: "🥬", category: "Herb & Green Seeds" },
+  { name: "Coriander Plant Seed", emoji: "🌿", category: "Herb & Green Seeds" },
+  { name: "Mint Seed", emoji: "🌿", category: "Herb & Green Seeds" },
+  { name: "Basil Seed", emoji: "🌿", category: "Herb & Green Seeds" },
+  
+  // Oilseeds & Misc
+  { name: "White Sesame Seed", emoji: "⚪", category: "Oilseeds & Misc" },
+  { name: "Black Sesame Seed", emoji: "⚫", category: "Oilseeds & Misc" },
+  { name: "Poppy Seed", emoji: "⚪", category: "Oilseeds & Misc" },
+  { name: "Flaxseed", emoji: "🟤", category: "Oilseeds & Misc" },
+  { name: "Sunflower Seed", emoji: "🌻", category: "Oilseeds & Misc" },
+  { name: "Safflower Seed", emoji: "🟡", category: "Oilseeds & Misc" },
+  { name: "Lotus Seed", emoji: "🪷", category: "Oilseeds & Misc" },
+  { name: "Water Chestnut", emoji: "🌰", category: "Oilseeds & Misc" },
+  { name: "Garden Cress Seed", emoji: "🌿", category: "Oilseeds & Misc" },
+  { name: "Hemp Seed", emoji: "🌿", category: "Oilseeds & Misc" },
+  { name: "Castor Seed", emoji: "🌰", category: "Oilseeds & Misc" },
+];
+
+// Deterministic RNG based on combination hash
+function getRandomSeed(ingredient1Name: string, ingredient2Name: string): typeof SEED_DATABASE[0] {
+  const combined = [ingredient1Name, ingredient2Name].sort().join("|");
+  let hash = 0;
+  for (let i = 0; i < combined.length; i++) {
+    hash = ((hash << 5) - hash) + combined.charCodeAt(i);
+    hash = hash & hash;
+  }
+  const index = Math.abs(hash) % SEED_DATABASE.length;
+  return SEED_DATABASE[index];
+}
 
 export default function Game() {
   const navigate = useNavigate();
@@ -54,7 +192,6 @@ export default function Game() {
     if (loadGameId) {
       setGameId(loadGameId);
     } else {
-      // Generate new game ID
       const newGameId = Math.random().toString(36).substring(2, 15);
       setGameId(newGameId);
     }
@@ -68,7 +205,6 @@ export default function Game() {
   useEffect(() => {
     if (loadGameQuery && gameId) {
       setIngredients(loadGameQuery.discoveries);
-      // Update last accessed time
       updateLastAccessed({ gameId });
       toast.success("Game loaded successfully!");
     }
@@ -93,7 +229,6 @@ export default function Game() {
       setCombineSlot1(ingredient);
     } else if (!combineSlot2 && ingredient.id !== combineSlot1.id) {
       setCombineSlot2(ingredient);
-      // Trigger combination
       await combineIngredients(combineSlot1, ingredient);
     }
   };
@@ -105,6 +240,50 @@ export default function Game() {
   const combineIngredients = async (ing1: Ingredient, ing2: Ingredient) => {
     setIsProcessing(true);
     try {
+      // Special case: Seed + Soil = "Soil with Seed"
+      const names = [ing1.name, ing2.name].sort();
+      if (names[0] === "Seed" && names[1] === "Soil") {
+        const newIngredient: Ingredient = {
+          id: `soil-with-seed-${Date.now()}`,
+          name: "Soil with Seed",
+          emoji: "🌱🌰",
+          isBase: false,
+        };
+        
+        const exists = ingredients.some((i) => i.name === newIngredient.name);
+        if (exists) {
+          toast.info("You already have Soil with Seed!");
+        } else {
+          setIngredients((prev) => [...prev, newIngredient]);
+          toast.success("Created: Soil with Seed 🌱🌰");
+        }
+        return;
+      }
+      
+      // Special case: "Soil with Seed" + Water = Random seed germination
+      if ((ing1.name === "Soil with Seed" && ing2.name === "Water") ||
+          (ing2.name === "Soil with Seed" && ing1.name === "Water")) {
+        const randomSeed = getRandomSeed(ing1.name, ing2.name);
+        const newIngredient: Ingredient = {
+          id: `${randomSeed.name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
+          name: randomSeed.name,
+          emoji: randomSeed.emoji,
+          isBase: false,
+        };
+        
+        const exists = ingredients.some((i) => i.name === newIngredient.name);
+        if (exists) {
+          toast.info(`You already discovered ${randomSeed.name}!`);
+        } else {
+          setIngredients((prev) => [...prev, newIngredient]);
+          toast.success(`🌱 Germinated: ${randomSeed.name} ${randomSeed.emoji}`, {
+            description: `Category: ${randomSeed.category}`,
+          });
+        }
+        return;
+      }
+
+      // Regular AI combination for all other cases
       const result = await generateDish({
         ingredient1: ing1.name,
         ingredient2: ing2.name,
@@ -118,7 +297,6 @@ export default function Game() {
         isBase: false,
       };
 
-      // Check if already discovered
       const exists = ingredients.some((i) => i.name === newIngredient.name);
       if (exists) {
         toast.info(`You already discovered ${result.name}!`);
@@ -179,7 +357,7 @@ export default function Game() {
               <Home className="w-5 h-5" />
             </Button>
             <h1 className="text-2xl font-bold tracking-tight">
-              🍳 FoodCraft
+              🍛 FoodCraft: Indian Cuisine
             </h1>
           </div>
           <div className="flex items-center gap-2">
@@ -208,8 +386,15 @@ export default function Game() {
               isProcessing={isProcessing}
             />
 
-            <div className="text-center text-sm text-muted-foreground">
-              <p>Discoveries: {ingredients.length}</p>
+            <div className="text-center space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Discoveries: {ingredients.length}
+              </p>
+              <div className="text-xs text-muted-foreground bg-card border rounded-lg p-3">
+                <p className="font-semibold mb-1">💡 Seed Germination:</p>
+                <p>Seed + Soil → Soil with Seed</p>
+                <p>Soil with Seed + Water → Random Seed! 🌱</p>
+              </div>
             </div>
           </div>
 

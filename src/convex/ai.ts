@@ -32,7 +32,7 @@ export const generateDish = action({
       };
     }
 
-    // Generate dish name and emoji using AI
+    // Generate dish name and emoji using AI with Indian cuisine context
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -44,7 +44,17 @@ export const generateDish = action({
         messages: [
           {
             role: "user",
-            content: `You are a creative chef creating fusion dishes. Combine "${args.ingredient1}" and "${args.ingredient2}" into a new dish, ingredient, or food concept. Respond ONLY with a JSON object in this exact format: {"name": "Dish Name", "emoji": "🍕"}. Be creative and fun! The name should be 1-3 words max.`,
+            content: `You are a creative Indian chef creating fusion dishes and ingredients. Combine "${args.ingredient1}" and "${args.ingredient2}" into a new dish, ingredient, or food concept inspired by Indian cuisine. 
+
+Consider traditional Indian cooking methods like:
+- Tadka (tempering), grinding, roasting, fermenting
+- Regional dishes from North, South, East, West India
+- Street food, sweets, breads, curries, chutneys, pickles
+- Spice blends, masalas, and traditional preparations
+
+Respond ONLY with a JSON object in this exact format: {"name": "Dish Name", "emoji": "🍛"}. 
+
+Be creative and authentic to Indian culinary traditions! The name should be 1-4 words max and can use Hindi/regional names if appropriate (like "Masala Dosa", "Paneer Tikka", "Jeera Rice", etc).`,
           },
         ],
       }),
@@ -85,7 +95,7 @@ export const generateDish = action({
             body: JSON.stringify({
               text_prompts: [
                 {
-                  text: `professional food photography of ${result.name}, appetizing, high quality, studio lighting`,
+                  text: `professional food photography of ${result.name}, Indian cuisine, appetizing, high quality, studio lighting, traditional presentation`,
                   weight: 1,
                 },
               ],
