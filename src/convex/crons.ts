@@ -1,14 +1,16 @@
 import { cronJobs } from "convex/server";
-import { internal } from "./_generated/api";
+import { api } from "./_generated/api";
 
 const crons = cronJobs();
 
-// Run cleanup every 24 hours
+// Add a loosely typed fallback to avoid TS errors before Convex generates types
+const anyApi = api as any;
+
+// Clean up old game states daily
 crons.interval(
   "cleanup old games",
   { hours: 24 },
-  // Cast to any to avoid typegen timing issues during initial builds
-  (internal as any).gameStates.cleanupOldGames,
+  anyApi.gameStates.cleanupOldGames,
   {}
 );
 
