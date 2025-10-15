@@ -64,8 +64,8 @@ Combine: ["${args.ingredient1}"] + ["${args.ingredient2}"]
 
 ### KNOWLEDGE${genealogyContext ? "\n" + genealogyContext : "\nBoth ingredients are core ingredients with no crafting history."}`;
 
-    // Generate dish name and emoji using Gemini 2.5 with Indian cuisine context
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`, {
+    // Generate dish name and emoji using Gemini 2.5 Flash-Lite with Indian cuisine context
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-thinking-exp-01-21:generateContent?key=${geminiApiKey}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -90,18 +90,28 @@ Combine: ["${args.ingredient1}"] + ["${args.ingredient2}"]
     }
 
     const data = await response.json();
+    
+    // Log the response for debugging
+    console.log("Gemini API Response:", JSON.stringify(data, null, 2));
+    
     const content = data.candidates[0].content.parts[0].text;
     
     // Parse the JSON response
     let result;
     try {
-      result = JSON.parse(content);
+      // Extract JSON from the response (in case it's wrapped in markdown code blocks)
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      const jsonString = jsonMatch ? jsonMatch[0] : content;
+      result = JSON.parse(jsonString);
+      
+      // Validate the result has required fields
+      if (!result.name || !result.emoji) {
+        throw new Error("Invalid response format");
+      }
     } catch (e) {
-      // Fallback if AI doesn't return valid JSON
-      result = {
-        name: `${args.ingredient1} ${args.ingredient2}`,
-        emoji: "🍽️",
-      };
+      console.error("Failed to parse AI response:", content, e);
+      // Better fallback - throw error instead of concatenating
+      throw new Error(`AI returned invalid response: ${content}`);
     }
 
     let imageUrl: string | undefined = undefined;
