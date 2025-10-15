@@ -81,38 +81,32 @@ Be creative and authentic to Indian culinary traditions! The name should be 1-4 
 
     let imageUrl: string | undefined = undefined;
 
-    // Generate image if Stability API key is available
+    // Generate image if Stability API key is available (using Hugging Face)
     if (stabilityApiKey) {
       try {
         const imageResponse = await fetch(
-          "https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image",
+          "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
           {
             method: "POST",
             headers: {
-              "Content-Type": "application/json",
               "Authorization": `Bearer ${stabilityApiKey}`,
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              text_prompts: [
-                {
-                  text: `professional food photography of ${result.name}, Indian cuisine, appetizing, high quality, studio lighting, traditional presentation`,
-                  weight: 1,
-                },
-              ],
-              cfg_scale: 7,
-              height: 512,
-              width: 512,
-              steps: 30,
-              samples: 1,
+              inputs: `professional food photography of ${result.name}, Indian cuisine, appetizing, high quality, studio lighting, traditional presentation`,
+              parameters: {
+                num_inference_steps: 30,
+                guidance_scale: 7,
+              },
             }),
           }
         );
 
         if (imageResponse.ok) {
-          const imageData = await imageResponse.json();
-          if (imageData.artifacts && imageData.artifacts[0]) {
-            imageUrl = `data:image/png;base64,${imageData.artifacts[0].base64}`;
-          }
+          const imageBlob = await imageResponse.blob();
+          const arrayBuffer = await imageBlob.arrayBuffer();
+          const base64 = Buffer.from(arrayBuffer).toString('base64');
+          imageUrl = `data:image/png;base64,${base64}`;
         }
       } catch (error) {
         console.error("Image generation failed:", error);
