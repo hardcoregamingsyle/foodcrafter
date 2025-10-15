@@ -45,22 +45,20 @@ export const generateDish = action({
       genealogyContext += `\n\nItem: "${args.ingredient2}"\nMade From:\n${args.ingredient2Genealogy.map(parent => `- "${parent}"`).join("\n")}`;
     }
 
-    const promptText = `### ACTION
+    const promptText = `You are a master chef and a crafting game engine. I will provide you with two items to combine. I will also provide the crafting history for each complex item. Use this history to determine the most logical and creative new item.
+
+Rules: 
+- Analyze the complete history of all ingredients to inform your result. 
+- Respond with ONLY a JSON object in this exact format: {"name": "Dish Name", "emoji": "🍛"}
+- The name should be the new item created (e.g., "Pizza", "Spicy Bread")
+- Do not repeat ingredients in the name (e.g., if you combine "Tomato Sauce" and "Dough", the result is "Pizza", not "Tomato Sauce Dough")
+- Keep names concise (1-4 words max)
+- Consider Indian cuisine traditions when appropriate
+
+### ACTION
 Combine: ["${args.ingredient1}"] + ["${args.ingredient2}"]
 
-### KNOWLEDGE${genealogyContext ? "\n" + genealogyContext : "\nBoth ingredients are core ingredients with no crafting history."}
-
-You are a creative Indian chef creating fusion dishes and ingredients. Based on the combination above and the knowledge of how these ingredients were made, create a new dish, ingredient, or food concept inspired by Indian cuisine.
-
-Consider traditional Indian cooking methods like:
-- Tadka (tempering), grinding, roasting, fermenting
-- Regional dishes from North, South, East, West India
-- Street food, sweets, breads, curries, chutneys, pickles
-- Spice blends, masalas, and traditional preparations
-
-Respond ONLY with a JSON object in this exact format: {"name": "Dish Name", "emoji": "🍛"}. 
-
-Be creative and authentic to Indian culinary traditions! The name should be 1-4 words max and can use Hindi/regional names if appropriate (like "Masala Dosa", "Paneer Tikka", "Jeera Rice", etc).`;
+### KNOWLEDGE${genealogyContext ? "\n" + genealogyContext : "\nBoth ingredients are core ingredients with no crafting history."}`;
 
     // Generate dish name and emoji using Gemini 2.5 with Indian cuisine context
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`, {
