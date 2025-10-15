@@ -54,6 +54,8 @@ Rules:
 - Do not repeat ingredients in the name (e.g., if you combine "Tomato Sauce" and "Dough", the result is "Pizza", not "Tomato Sauce Dough")
 - Keep names concise (1-4 words max)
 - Consider Indian cuisine traditions when appropriate
+- IMPORTANT: Create a NEW item that represents what these ingredients become when combined, not just their names joined together
+- Think about what happens when you actually combine these ingredients in cooking (e.g., Salt + Sugar = "Sweet Brine" or "Seasoning Mix", not "Salt Sugar")
 
 ### ACTION
 Combine: ["${args.ingredient1}"] + ["${args.ingredient2}"]
