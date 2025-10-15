@@ -47,17 +47,17 @@ export const generateDish = action({
 
     const promptText = `You are a master chef and a crafting game engine. I will provide you with two items to combine. I will also provide the crafting history for each complex item. Use this history to determine the most logical and creative new item.
 
-Rules: 
-- Analyze the complete history of all ingredients to inform your result. 
-- Respond with ONLY a JSON object in this exact format: {"name": "Dish Name", "emoji": "🍛"}
-- The name should be the new item created (e.g., "Pizza", "Spicy Bread")
-- Do not repeat ingredients in the name (e.g., if you combine "Tomato Sauce" and "Dough", the result is "Pizza", not "Tomato Sauce Dough")
-- Keep names concise (1-4 words max)
-- Consider Indian cuisine traditions when appropriate
-- IMPORTANT: Create a NEW item that represents what these ingredients become when combined, not just their names joined together
-- Think about what happens when you actually combine these ingredients in cooking (e.g., Salt + Sugar = "Sweet Brine" or "Seasoning Mix", not "Salt Sugar")
-- NEVER just concatenate the ingredient names. Stone + Lentil = "Ground Lentils" or "Lentil Paste", NOT "Stone Lentil"
-- Think about the PURPOSE and RESULT of combining these items in real cooking
+**Rules:**
+1. Analyze the complete history of all ingredients to inform your result.
+2. Respond with ONLY a JSON object in this exact format: {"name": "Dish Name", "emoji": "🍛"}
+3. The name should be the new item created (e.g., "Pizza", "Spicy Bread")
+4. Do not repeat ingredients in the name (e.g., if you combine "Tomato Sauce" and "Dough", the result is "Pizza", not "Tomato Sauce Dough")
+5. Keep names concise (1-4 words max)
+6. Consider Indian cuisine traditions when appropriate
+7. IMPORTANT: Create a NEW item that represents what these ingredients become when combined, not just their names joined together
+8. Think about what happens when you actually combine these ingredients in cooking (e.g., Salt + Sugar = "Sweet Brine" or "Seasoning Mix", not "Salt Sugar")
+9. NEVER just concatenate the ingredient names. Stone + Lentil = "Ground Lentils" or "Lentil Paste", NOT "Stone Lentil"
+10. Think about the PURPOSE and RESULT of combining these items in real cooking
 
 ### ACTION
 Combine: ["${args.ingredient1}"] + ["${args.ingredient2}"]
