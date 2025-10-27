@@ -219,6 +219,21 @@ export default function Game() {
     setDraggedId(null);
   };
 
+  const handleIngredientClick = async (id: string) => {
+    const ingredient = ingredients.find((i) => i.id === id);
+    if (!ingredient || isProcessing) return;
+
+    if (!combineSlot1) {
+      setCombineSlot1(ingredient);
+    } else if (!combineSlot2 && ingredient.id !== combineSlot1.id) {
+      setCombineSlot2(ingredient);
+      await combineIngredients(combineSlot1, ingredient);
+    } else if (ingredient.id === combineSlot1.id) {
+      // If clicking the same ingredient that's in slot 1, clear it
+      setCombineSlot1(null);
+    }
+  };
+
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     if (!draggedId) return;
@@ -425,6 +440,7 @@ export default function Game() {
                       {...ingredient}
                       onDragStart={handleDragStart}
                       onDragEnd={handleDragEnd}
+                      onClick={handleIngredientClick}
                       isNew={index >= BASE_INGREDIENTS.length && index === ingredients.length - 1}
                     />
                   ))}

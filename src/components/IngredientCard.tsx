@@ -8,6 +8,7 @@ interface IngredientCardProps {
   imageUrl?: string;
   onDragStart: (id: string) => void;
   onDragEnd: () => void;
+  onClick?: (id: string) => void;
   isNew?: boolean;
 }
 
@@ -18,6 +19,7 @@ export function IngredientCard({
   imageUrl,
   onDragStart,
   onDragEnd,
+  onClick,
   isNew = false,
 }: IngredientCardProps) {
   return (
@@ -28,7 +30,8 @@ export function IngredientCard({
       draggable
       onDragStart={() => onDragStart(id)}
       onDragEnd={onDragEnd}
-      className="cursor-grab active:cursor-grabbing"
+      onClick={() => onClick?.(id)}
+      className="cursor-pointer active:cursor-grabbing"
     >
       <Card className="p-3 hover:shadow-lg transition-all hover:scale-105 border-2">
         <div className="flex flex-col items-center gap-2">
