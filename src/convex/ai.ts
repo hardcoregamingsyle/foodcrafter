@@ -87,13 +87,21 @@ Combine: ["${args.ingredient1}"] + ["${args.ingredient2}"]
     });
 
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error("Gemini API error response:", errorText);
+      throw new Error(`Gemini API error: ${response.statusText} - ${errorText}`);
     }
 
     const data = await response.json();
     
-    // Log the response for debugging
+    // Log the full response for debugging
     console.log("Gemini API Response:", JSON.stringify(data, null, 2));
+    
+    // Check if response has the expected structure
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      console.error("Unexpected API response structure:", data);
+      throw new Error(`Invalid Gemini API response structure: ${JSON.stringify(data)}`);
+    }
     
     const content = data.candidates[0].content.parts[0].text;
     
