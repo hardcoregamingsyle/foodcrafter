@@ -64,8 +64,8 @@ Combine: ["${args.ingredient1}"] + ["${args.ingredient2}"]
 
 ### KNOWLEDGE${genealogyContext ? "\n" + genealogyContext : "\nBoth ingredients are core ingredients with no crafting history."}`;
 
-    // Generate dish name and emoji using Gemini 2.5 Flash-Lite with Indian cuisine context
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-thinking-exp-01-21:generateContent`, {
+    // Generate dish name and emoji using Gemini 2.5 Flash with Indian cuisine context
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -81,7 +81,7 @@ Combine: ["${args.ingredient1}"] + ["${args.ingredient2}"]
           temperature: 0.9,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 256,
         }
       }),
     });
