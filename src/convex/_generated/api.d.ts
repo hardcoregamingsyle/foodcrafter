@@ -16,6 +16,7 @@ import type {
 import type * as ai from "../ai.js";
 import type * as auth_emailOtp from "../auth/emailOtp.js";
 import type * as auth from "../auth.js";
+import type * as clearCache from "../clearCache.js";
 import type * as crons from "../crons.js";
 import type * as discoveries from "../discoveries.js";
 import type * as gameStates from "../gameStates.js";
@@ -34,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   ai: typeof ai;
   "auth/emailOtp": typeof auth_emailOtp;
   auth: typeof auth;
+  clearCache: typeof clearCache;
   crons: typeof crons;
   discoveries: typeof discoveries;
   gameStates: typeof gameStates;
