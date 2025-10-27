@@ -98,9 +98,14 @@ Combine: ["${args.ingredient1}"] + ["${args.ingredient2}"]
     console.log("Gemini API Response:", JSON.stringify(data, null, 2));
     
     // Check if response has the expected structure
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+    if (!data.candidates || !Array.isArray(data.candidates) || data.candidates.length === 0) {
       console.error("Unexpected API response structure:", data);
       throw new Error(`Invalid Gemini API response structure: ${JSON.stringify(data)}`);
+    }
+    
+    if (!data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
+      console.error("Missing content in API response:", data);
+      throw new Error(`Invalid Gemini API response - missing content: ${JSON.stringify(data)}`);
     }
     
     const content = data.candidates[0].content.parts[0].text;
