@@ -14,6 +14,7 @@ export const generateDish = action({
   },
   handler: async (ctx, args): Promise<{ name: string; emoji: string; imageUrl?: string }> => {
     const geminiApiKey = process.env.GEMINI_API_KEY;
+    const geminiApiFallbackKey = process.env.GEMINI_API_FALLBACK_KEY;
     const stabilityApiKey = process.env.STABILITY_API_KEY;
 
     if (!geminiApiKey) {
@@ -64,27 +65,40 @@ Combine: ["${args.ingredient1}"] + ["${args.ingredient2}"]
 
 ### KNOWLEDGE${genealogyContext ? "\n" + genealogyContext : "\nBoth ingredients are core ingredients with no crafting history."}`;
 
-    // Generate dish name and emoji using Gemini 2.5 Flash with Indian cuisine context
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": geminiApiKey,
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: promptText
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.9,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 256,
-        }
-      }),
-    });
+    // Function to call Gemini API with a specific key
+    const callGeminiAPI = async (apiKey: string) => {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: promptText
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.9,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 256,
+          }
+        }),
+      });
+
+      return response;
+    };
+
+    // Try primary key first, then fallback
+    let response = await callGeminiAPI(geminiApiKey);
+    
+    // If rate limited and fallback key exists, try fallback
+    if (!response.ok && response.status === 429 && geminiApiFallbackKey) {
+      console.log("Primary API key rate limited, using fallback key");
+      response = await callGeminiAPI(geminiApiFallbackKey);
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
