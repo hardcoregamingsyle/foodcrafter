@@ -250,9 +250,12 @@ export default function Game() {
   const combineIngredients = async (ing1: Ingredient, ing2: Ingredient) => {
     setIsProcessing(true);
     try {
-      // Special case: Seed + Soil = "Soil with Seed"
+      // Special case: Seed + Soil + Water = Random seed germination
       const names = [ing1.name, ing2.name].sort();
-      if (names[0] === "Seed" && names[1] === "Soil") {
+      
+      // Step 1: Soil + Seed = "Soil with Seed"
+      if ((names[0] === "Seed" && names[1] === "Soil") || 
+          (names[0] === "Soil" && names[1] === "Seed")) {
         const newIngredient: Ingredient = {
           id: `soil-with-seed-${Date.now()}`,
           name: "Soil with Seed",
@@ -271,9 +274,9 @@ export default function Game() {
         return;
       }
       
-      // Special case: "Soil with Seed" + Water = Random seed germination
-      if ((ing1.name === "Soil with Seed" && ing2.name === "Water") ||
-          (ing2.name === "Soil with Seed" && ing1.name === "Water")) {
+      // Step 2: "Soil with Seed" + Water = Random seed germination
+      if ((names[0] === "Soil with Seed" && names[1] === "Water") ||
+          (names[0] === "Water" && names[1] === "Soil with Seed")) {
         const randomSeed = getRandomSeed();
         const newIngredient: Ingredient = {
           id: `${randomSeed.name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
