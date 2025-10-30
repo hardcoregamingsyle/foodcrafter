@@ -250,33 +250,12 @@ export default function Game() {
   const combineIngredients = async (ing1: Ingredient, ing2: Ingredient) => {
     setIsProcessing(true);
     try {
-      // Special case: Seed + Soil + Water = Random seed germination
+      // Special case: Mud + Seed = Random seed germination
       const names = [ing1.name, ing2.name].sort();
       
-      // Step 1: Soil + Seed = "Soil with Seed"
-      if ((names[0] === "Seed" && names[1] === "Soil") || 
-          (names[0] === "Soil" && names[1] === "Seed")) {
-        const newIngredient: Ingredient = {
-          id: `soil-with-seed-${Date.now()}`,
-          name: "Soil with Seed",
-          emoji: "🌱🌰",
-          isBase: false,
-          madeFrom: [ing1.name, ing2.name],
-        };
-        
-        const exists = ingredients.some((i) => i.name === newIngredient.name);
-        if (exists) {
-          toast.info("You already have Soil with Seed!");
-        } else {
-          setIngredients((prev) => [...prev, newIngredient]);
-          toast.success("Created: Soil with Seed 🌱🌰");
-        }
-        return;
-      }
-      
-      // Step 2: "Soil with Seed" + Water = Random seed germination
-      if ((names[0] === "Soil with Seed" && names[1] === "Water") ||
-          (names[0] === "Water" && names[1] === "Soil with Seed")) {
+      // Check if one ingredient is "Mud" and the other is "Seed"
+      if ((names[0] === "Mud" && names[1] === "Seed") || 
+          (names[0] === "Seed" && names[1] === "Mud")) {
         const randomSeed = getRandomSeed();
         const newIngredient: Ingredient = {
           id: `${randomSeed.name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
@@ -414,8 +393,8 @@ export default function Game() {
               </p>
               <div className="text-xs text-muted-foreground bg-card border rounded-lg p-3">
                 <p className="font-semibold mb-1">💡 Seed Germination:</p>
-                <p>Seed + Soil → Soil with Seed</p>
-                <p>Soil with Seed + Water → Random Seed! 🌱</p>
+                <p>Water + Soil → Mud</p>
+                <p>Mud + Seed → Random Seed! 🌱</p>
               </div>
             </div>
           </div>
