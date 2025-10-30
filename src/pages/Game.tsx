@@ -250,7 +250,7 @@ export default function Game() {
   const combineIngredients = async (ing1: Ingredient, ing2: Ingredient) => {
     setIsProcessing(true);
     try {
-      // Special case: Seed germination (two pathways)
+      // Special case: Seed germination (three pathways)
       const names = [ing1.name, ing2.name].sort();
       
       // Pathway 1: Mud + Seed = Random seed germination
@@ -280,6 +280,30 @@ export default function Game() {
       // Pathway 2: Soil with Seed + Water = Random seed germination
       if ((names[0] === "Soil with Seed" && names[1] === "Water") || 
           (names[0] === "Water" && names[1] === "Soil with Seed")) {
+        const randomSeed = getRandomSeed();
+        const newIngredient: Ingredient = {
+          id: `${randomSeed.name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
+          name: randomSeed.name,
+          emoji: randomSeed.emoji,
+          isBase: false,
+          // Germinated seeds are treated as core ingredients - no genealogy shown
+        };
+        
+        const exists = ingredients.some((i) => i.name === newIngredient.name);
+        if (exists) {
+          toast.info(`You already discovered ${randomSeed.name}!`);
+        } else {
+          setIngredients((prev) => [...prev, newIngredient]);
+          toast.success(`🌱 Germinated: ${randomSeed.name} ${randomSeed.emoji}`, {
+            description: `Category: ${randomSeed.category}`,
+          });
+        }
+        return;
+      }
+      
+      // Pathway 3: Sprouted Seeds + Soil = Random seed germination
+      if ((names[0] === "Soil" && names[1] === "Sprouted Seeds") || 
+          (names[0] === "Sprouted Seeds" && names[1] === "Soil")) {
         const randomSeed = getRandomSeed();
         const newIngredient: Ingredient = {
           id: `${randomSeed.name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
@@ -416,9 +440,10 @@ export default function Game() {
                 Discoveries: {ingredients.length}
               </p>
               <div className="text-xs text-muted-foreground bg-card border rounded-lg p-3">
-                <p className="font-semibold mb-1">💡 Seed Germination (2 ways):</p>
+                <p className="font-semibold mb-1">💡 Seed Germination (3 ways):</p>
                 <p>Path 1: Water + Soil → Mud, then Mud + Seed → Random Seed! 🌱</p>
                 <p>Path 2: Seed + Soil → Soil with Seed, then + Water → Random Seed! 🌱</p>
+                <p>Path 3: Water + Seed → Sprouted Seeds, then + Soil → Random Seed! 🌱</p>
               </div>
             </div>
           </div>
