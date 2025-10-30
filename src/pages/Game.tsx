@@ -43,7 +43,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
   { id: "sugar", name: "Sugar", emoji: "🍬", isBase: true },
 ];
 
-// Comprehensive seed database organized by category
+// Comprehensive seed database organized by category - Authentic Indian Cuisine Seeds
 const SEED_DATABASE = [
   // Spice Seeds
   { name: "Cumin Seed", emoji: "🌿", category: "Spice Seeds" },
@@ -74,7 +74,7 @@ const SEED_DATABASE = [
   { name: "Amaranth Seed", emoji: "🌾", category: "Grains & Millets" },
   { name: "Buckwheat", emoji: "🌾", category: "Grains & Millets" },
   
-  // Lentils & Pulses
+  // Lentils, Beans & Pulses
   { name: "Toor Dal", emoji: "🟡", category: "Lentils & Pulses" },
   { name: "Masoor Dal", emoji: "🔴", category: "Lentils & Pulses" },
   { name: "Mung Dal", emoji: "🟢", category: "Lentils & Pulses" },
@@ -93,6 +93,8 @@ const SEED_DATABASE = [
   { name: "Green Pea", emoji: "🟢", category: "Lentils & Pulses" },
   { name: "Cowpea", emoji: "🤍", category: "Lentils & Pulses" },
   { name: "Whole Red Lentil", emoji: "🔴", category: "Lentils & Pulses" },
+  { name: "Dew Bean", emoji: "🟢", category: "Lentils & Pulses" },
+  { name: "Lima Bean", emoji: "🤍", category: "Lentils & Pulses" },
   
   // Nuts & Dry Fruits
   { name: "Almond", emoji: "🌰", category: "Nuts & Dry Fruits" },
@@ -105,10 +107,10 @@ const SEED_DATABASE = [
   { name: "Pine Nut", emoji: "🌰", category: "Nuts & Dry Fruits" },
   { name: "Apricot Kernel", emoji: "🟠", category: "Nuts & Dry Fruits" },
   { name: "Chironji", emoji: "🌰", category: "Nuts & Dry Fruits" },
-  { name: "Date", emoji: "🟤", category: "Nuts & Dry Fruits" },
+  { name: "Date Seed", emoji: "🟤", category: "Nuts & Dry Fruits" },
   { name: "Raisin", emoji: "🟣", category: "Nuts & Dry Fruits" },
   
-  // Vegetable Seeds
+  // Vegetable & Gourd Seeds
   { name: "Okra Seed", emoji: "🌱", category: "Vegetable Seeds" },
   { name: "Eggplant Seed", emoji: "🍆", category: "Vegetable Seeds" },
   { name: "Tomato Seed", emoji: "🍅", category: "Vegetable Seeds" },
