@@ -13,18 +13,37 @@ export const generateDish = action({
     ingredient2Genealogy: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args): Promise<{ name: string; emoji: string; imageUrl?: string }> => {
-    const geminiApiKey = process.env.GEMINI_API_KEY;
-    const geminiApiFallbackKey = process.env.GEMINI_API_FALLBACK_KEY;
-    const stabilityApiKey = process.env.STABILITY_API_KEY;
-
-    if (!geminiApiKey) {
-      throw new Error("GEMINI_API_KEY not configured");
+    // Collect all available Gemini API keys
+    const geminiApiKeys: string[] = [];
+    let keyIndex = 1;
+    while (true) {
+      const key = process.env[`GEMINI_API_KEY_${keyIndex}`] || (keyIndex === 1 ? process.env.GEMINI_API_KEY : null);
+      if (key) {
+        geminiApiKeys.push(key);
+        keyIndex++;
+      } else {
+        break;
+      }
+    }
+    
+    // Add fallback key if exists
+    if (process.env.GEMINI_API_FALLBACK_KEY) {
+      geminiApiKeys.push(process.env.GEMINI_API_FALLBACK_KEY);
     }
 
-    // Check cache first
+    if (geminiApiKeys.length === 0) {
+      throw new Error("No GEMINI_API_KEY configured");
+    }
+
+    const stabilityApiKey = process.env.STABILITY_API_KEY;
+
+    // Sort ingredients to ensure a+b = b+a
+    const [sortedIng1, sortedIng2] = [args.ingredient1, args.ingredient2].sort();
+
+    // Check cache first (using sorted ingredients)
     const cached: Doc<"discoveries"> | null = await ctx.runQuery(internal.discoveries.findCombination, {
-      ingredient1: args.ingredient1,
-      ingredient2: args.ingredient2,
+      ingredient1: sortedIng1,
+      ingredient2: sortedIng2,
     });
 
     if (cached) {
@@ -91,19 +110,37 @@ Combine: ["${args.ingredient1}"] + ["${args.ingredient2}"]
       return response;
     };
 
-    // Try primary key first, then fallback
-    let response = await callGeminiAPI(geminiApiKey);
+    // Try all available API keys in rotation
+    let response: Response | null = null;
+    let lastError: string = "";
     
-    // If rate limited and fallback key exists, try fallback
-    if (!response.ok && response.status === 429 && geminiApiFallbackKey) {
-      console.log("Primary API key rate limited, using fallback key");
-      response = await callGeminiAPI(geminiApiFallbackKey);
+    for (let i = 0; i < geminiApiKeys.length; i++) {
+      try {
+        console.log(`Trying Gemini API key ${i + 1}/${geminiApiKeys.length}`);
+        response = await callGeminiAPI(geminiApiKeys[i]);
+        
+        if (response.ok) {
+          console.log(`Successfully used API key ${i + 1}`);
+          break;
+        } else if (response.status === 429) {
+          console.log(`API key ${i + 1} rate limited, trying next key...`);
+          lastError = await response.text();
+          continue;
+        } else {
+          lastError = await response.text();
+          console.error(`API key ${i + 1} error:`, lastError);
+          break;
+        }
+      } catch (error) {
+        console.error(`API key ${i + 1} failed:`, error);
+        lastError = String(error);
+        continue;
+      }
     }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Gemini API error response:", errorText);
-      throw new Error(`Gemini API error: ${response.statusText} - ${errorText}`);
+    if (!response || !response.ok) {
+      console.error("All Gemini API keys failed. Last error:", lastError);
+      throw new Error(`Gemini API error: All keys exhausted - ${lastError}`);
     }
 
     const data = await response.json();
@@ -176,10 +213,10 @@ Combine: ["${args.ingredient1}"] + ["${args.ingredient2}"]
       }
     }
 
-    // Save to cache
+    // Save to cache (using sorted ingredients)
     await ctx.runMutation(internal.discoveries.saveCombination, {
-      ingredient1: args.ingredient1,
-      ingredient2: args.ingredient2,
+      ingredient1: sortedIng1,
+      ingredient2: sortedIng2,
       resultName: result.name,
       resultEmoji: result.emoji,
       resultImageUrl: imageUrl,

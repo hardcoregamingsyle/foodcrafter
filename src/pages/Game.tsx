@@ -160,16 +160,10 @@ const SEED_DATABASE = [
   { name: "Castor Seed", emoji: "🌰", category: "Oilseeds & Misc" },
 ];
 
-// Deterministic RNG based on combination hash
-function getRandomSeed(ingredient1Name: string, ingredient2Name: string): typeof SEED_DATABASE[0] {
-  const combined = [ingredient1Name, ingredient2Name].sort().join("|");
-  let hash = 0;
-  for (let i = 0; i < combined.length; i++) {
-    hash = ((hash << 5) - hash) + combined.charCodeAt(i);
-    hash = hash & hash;
-  }
-  const index = Math.abs(hash) % SEED_DATABASE.length;
-  return SEED_DATABASE[index];
+// Random seed generator with timestamp for true randomness
+function getRandomSeed(): typeof SEED_DATABASE[0] {
+  const randomIndex = Math.floor(Math.random() * SEED_DATABASE.length);
+  return SEED_DATABASE[randomIndex];
 }
 
 export default function Game() {
@@ -280,7 +274,7 @@ export default function Game() {
       // Special case: "Soil with Seed" + Water = Random seed germination
       if ((ing1.name === "Soil with Seed" && ing2.name === "Water") ||
           (ing2.name === "Soil with Seed" && ing1.name === "Water")) {
-        const randomSeed = getRandomSeed(ing1.name, ing2.name);
+        const randomSeed = getRandomSeed();
         const newIngredient: Ingredient = {
           id: `${randomSeed.name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
           name: randomSeed.name,
