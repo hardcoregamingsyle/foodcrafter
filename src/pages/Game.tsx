@@ -17,6 +17,7 @@ import { useMutation, useQuery, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { Copy, Home, RotateCcw, Save } from "lucide-react";
+import confetti from "canvas-confetti";
 
 interface Ingredient {
   id: string;
@@ -182,6 +183,50 @@ export default function Game() {
   const updateLastAccessed = useMutation(api.gameStates.updateLastAccessed);
   const generateDish = useAction(api.ai.generateDish);
 
+  // Sound effect functions
+  const playCombineSound = () => {
+    const audio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGe77OeeSwwPUKfj8LZjHAU5k9fyz3osBSh+zPLaizsKGGS56+mjUBELTKXh8bllHgU2jdXy0H0vBSh+zPLaizsKGGS56+mjUBELTKXh8bllHgU2jdXy0H0vBSh+zPLaizsKGGS56+mjUBELTKXh8bllHgU2jdXy0H0vBQ==");
+    audio.volume = 0.3;
+    audio.play().catch(() => {});
+  };
+
+  const playDiscoverySound = () => {
+    const audio = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=");
+    audio.volume = 0.5;
+    audio.play().catch(() => {});
+  };
+
+  const triggerConfetti = () => {
+    const duration = 3000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    function randomInRange(min: number, max: number) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const interval: any = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+      
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+      });
+    }, 250);
+  };
+
   // Load game from URL parameter
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -251,6 +296,10 @@ export default function Game() {
 
   const combineIngredients = async (ing1: Ingredient, ing2: Ingredient) => {
     setIsProcessing(true);
+    
+    // Play combine sound
+    playCombineSound();
+    
     try {
       // Special case: Seed germination (three pathways)
       const names = [ing1.name, ing2.name].sort();
@@ -333,7 +382,6 @@ export default function Game() {
         ingredient2Genealogy: ing2Genealogy,
       });
 
-      // Check if this result already exists in player's inventory
       const exists = ingredients.some((i) => i.name === result.name);
       
       if (!exists) {
@@ -348,9 +396,14 @@ export default function Game() {
         
         setIngredients((prev) => [...prev, newIngredient]);
         
-        // Only show "NEW DISCOVERY" toast if this combination has NEVER been discovered by anyone before
         if (result.isNewDiscovery) {
-          toast.success(`🎉 NEW DISCOVERY: ${result.name} ${result.emoji}`);
+          // Global new discovery - trigger celebration
+          triggerConfetti();
+          playDiscoverySound();
+          toast.success(`🎉 NEW DISCOVERY: ${result.name} ${result.emoji}`, {
+            description: "You've discovered something no one has found before!",
+            duration: 5000,
+          });
         }
       }
     } catch (error) {
