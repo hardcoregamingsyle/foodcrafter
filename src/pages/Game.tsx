@@ -195,41 +195,49 @@ export default function Game() {
     audio.play().catch(() => {});
   };
 
-  const triggerConfetti = async () => {
-    try {
-      const confettiModule = await import('canvas-confetti');
-      const confetti = confettiModule.default;
+  const triggerConfetti = () => {
+    // Create confetti particles using DOM elements
+    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#a29bfe'];
+    const confettiCount = 50;
+    
+    for (let i = 0; i < confettiCount; i++) {
+      const confetti = document.createElement('div');
+      confetti.style.position = 'fixed';
+      confetti.style.width = '10px';
+      confetti.style.height = '10px';
+      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.left = Math.random() * 100 + '%';
+      confetti.style.top = '-10px';
+      confetti.style.opacity = '1';
+      confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+      confetti.style.zIndex = '9999';
+      confetti.style.pointerEvents = 'none';
+      confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
       
-      const duration = 3000;
-      const animationEnd = Date.now() + duration;
-      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-      function randomInRange(min: number, max: number) {
-        return Math.random() * (max - min) + min;
-      }
-
-      const interval: any = setInterval(function() {
-        const timeLeft = animationEnd - Date.now();
-
-        if (timeLeft <= 0) {
-          return clearInterval(interval);
-        }
-
-        const particleCount = 50 * (timeLeft / duration);
+      document.body.appendChild(confetti);
+      
+      // Animate the confetti
+      const duration = 3000 + Math.random() * 2000;
+      const startTime = Date.now();
+      const startLeft = parseFloat(confetti.style.left);
+      const drift = (Math.random() - 0.5) * 100;
+      
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = elapsed / duration;
         
-        confetti({
-          ...defaults,
-          particleCount,
-          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-        });
-        confetti({
-          ...defaults,
-          particleCount,
-          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-        });
-      }, 250);
-    } catch (error) {
-      console.error('Failed to load confetti:', error);
+        if (progress < 1) {
+          confetti.style.top = (progress * 120) + '%';
+          confetti.style.left = (startLeft + drift * progress) + '%';
+          confetti.style.opacity = String(1 - progress);
+          confetti.style.transform = `rotate(${progress * 720}deg)`;
+          requestAnimationFrame(animate);
+        } else {
+          confetti.remove();
+        }
+      };
+      
+      requestAnimationFrame(animate);
     }
   };
 
