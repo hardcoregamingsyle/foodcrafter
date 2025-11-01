@@ -190,7 +190,7 @@ export default function Game() {
   };
 
   const playDiscoverySound = () => {
-    const audio = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=");
+    const audio = new Audio("/assets/yay-6120.mp3");
     audio.volume = 0.5;
     audio.play().catch(() => {});
   };
