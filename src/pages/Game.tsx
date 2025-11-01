@@ -187,6 +187,7 @@ export default function Game() {
     const audio = new Audio("/assets/deep-fryer_sizzle-68660.mp3");
     audio.volume = 0.3;
     audio.play().catch(() => {});
+    return audio;
   };
 
   const playDiscoverySound = () => {
@@ -311,11 +312,15 @@ export default function Game() {
   const combineIngredients = async (ing1: Ingredient, ing2: Ingredient) => {
     setIsProcessing(true);
     
-    // Play combine sound
-    playCombineSound();
+    // Play combine sound and store reference
+    const combineAudio = playCombineSound();
     
     // Add 1 second delay to make the process feel more engaging
     await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Stop the combine sound
+    combineAudio.pause();
+    combineAudio.currentTime = 0;
     
     try {
       // Special case: Seed germination (three pathways)
