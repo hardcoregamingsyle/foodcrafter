@@ -268,9 +268,7 @@ export default function Game() {
         };
         
         const exists = ingredients.some((i) => i.name === newIngredient.name);
-        if (exists) {
-          toast.info(`You already discovered ${randomSeed.name}!`);
-        } else {
+        if (!exists) {
           setIngredients((prev) => [...prev, newIngredient]);
           toast.success(`🌱 Germinated: ${randomSeed.name} ${randomSeed.emoji}`, {
             description: `Category: ${randomSeed.category}`,
@@ -292,9 +290,7 @@ export default function Game() {
         };
         
         const exists = ingredients.some((i) => i.name === newIngredient.name);
-        if (exists) {
-          toast.info(`You already discovered ${randomSeed.name}!`);
-        } else {
+        if (!exists) {
           setIngredients((prev) => [...prev, newIngredient]);
           toast.success(`🌱 Germinated: ${randomSeed.name} ${randomSeed.emoji}`, {
             description: `Category: ${randomSeed.category}`,
@@ -316,9 +312,7 @@ export default function Game() {
         };
         
         const exists = ingredients.some((i) => i.name === newIngredient.name);
-        if (exists) {
-          toast.info(`You already discovered ${randomSeed.name}!`);
-        } else {
+        if (!exists) {
           setIngredients((prev) => [...prev, newIngredient]);
           toast.success(`🌱 Germinated: ${randomSeed.name} ${randomSeed.emoji}`, {
             description: `Category: ${randomSeed.category}`,
@@ -342,9 +336,7 @@ export default function Game() {
       // Check if this result already exists in player's inventory
       const exists = ingredients.some((i) => i.name === result.name);
       
-      if (exists) {
-        toast.info(`You already discovered ${result.name}!`);
-      } else {
+      if (!exists) {
         const newIngredient: Ingredient = {
           id: `${ing1.id}-${ing2.id}-${Date.now()}`,
           name: result.name,
@@ -355,7 +347,11 @@ export default function Game() {
         };
         
         setIngredients((prev) => [...prev, newIngredient]);
-        toast.success(`Discovered: ${result.name} ${result.emoji}`);
+        
+        // Only show "NEW DISCOVERY" toast if this combination has NEVER been discovered by anyone before
+        if (result.isNewDiscovery) {
+          toast.success(`🎉 NEW DISCOVERY: ${result.name} ${result.emoji}`);
+        }
       }
     } catch (error) {
       toast.error("Failed to combine ingredients. Check API keys.");

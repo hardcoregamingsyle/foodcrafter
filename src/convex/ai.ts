@@ -12,7 +12,7 @@ export const generateDish = action({
     ingredient1Genealogy: v.optional(v.array(v.string())),
     ingredient2Genealogy: v.optional(v.array(v.string())),
   },
-  handler: async (ctx, args): Promise<{ name: string; emoji: string; imageUrl?: string }> => {
+  handler: async (ctx, args): Promise<{ name: string; emoji: string; imageUrl?: string; isNewDiscovery: boolean }> => {
     // Collect all available Gemini API keys
     const geminiApiKeys: string[] = [];
     let keyIndex = 1;
@@ -51,6 +51,7 @@ export const generateDish = action({
         name: cached.resultName,
         emoji: cached.resultEmoji,
         imageUrl: cached.resultImageUrl,
+        isNewDiscovery: false, // This was already discovered before
       };
     }
 
@@ -226,6 +227,7 @@ Combine: ["${args.ingredient1}"] + ["${args.ingredient2}"]
       name: result.name,
       emoji: result.emoji,
       imageUrl,
+      isNewDiscovery: true, // This is a brand new discovery!
     };
   },
 });
