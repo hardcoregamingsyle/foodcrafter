@@ -5,7 +5,6 @@ if (exists) {
   toast.info(`You already discovered ${result.name}!`);
 } else {
   // Only add if new
-  const newIngredient: Ingredient = { ... };
   setIngredients((prev) => [...prev, newIngredient]);
   toast.success(`Discovered: ${result.name} ${result.emoji}`);
 }
