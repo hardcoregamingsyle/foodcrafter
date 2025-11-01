@@ -1,0 +1,7 @@
+const exists = ingredients.some((i) => i.name === newIngredient.name);
+if (exists) {
+  toast.info(`You already discovered ${result.name}!`);
+} else {
+  setIngredients((prev) => [...prev, newIngredient]);
+  toast.success(`Discovered: ${result.name} ${result.emoji}`);
+}

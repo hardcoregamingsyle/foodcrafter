@@ -339,19 +339,21 @@ export default function Game() {
         ingredient2Genealogy: ing2Genealogy,
       });
 
-      const newIngredient: Ingredient = {
-        id: `${ing1.id}-${ing2.id}-${Date.now()}`,
-        name: result.name,
-        emoji: result.emoji,
-        imageUrl: result.imageUrl,
-        isBase: false,
-        madeFrom: [ing1.name, ing2.name],
-      };
-
-      const exists = ingredients.some((i) => i.name === newIngredient.name);
+      // Check if this result already exists in player's inventory
+      const exists = ingredients.some((i) => i.name === result.name);
+      
       if (exists) {
         toast.info(`You already discovered ${result.name}!`);
       } else {
+        const newIngredient: Ingredient = {
+          id: `${ing1.id}-${ing2.id}-${Date.now()}`,
+          name: result.name,
+          emoji: result.emoji,
+          imageUrl: result.imageUrl,
+          isBase: false,
+          madeFrom: [ing1.name, ing2.name],
+        };
+        
         setIngredients((prev) => [...prev, newIngredient]);
         toast.success(`Discovered: ${result.name} ${result.emoji}`);
       }
