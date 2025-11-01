@@ -184,7 +184,7 @@ export default function Game() {
 
   // Sound effect functions
   const playCombineSound = () => {
-    const audio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGe77OeeSwwPUKfj8LZjHAU5k9fyz3osBSh+zPLaizsKGGS56+mjUBELTKXh8bllHgU2jdXy0H0vBSh+zPLaizsKGGS56+mjUBELTKXh8bllHgU2jdXy0H0vBSh+zPLaizsKGGS56+mjUBELTKXh8bllHgU2jdXy0H0vBQ==");
+    const audio = new Audio("/assets/deep-fryer_sizzle-68660.mp3");
     audio.volume = 0.3;
     audio.play().catch(() => {});
   };
@@ -313,6 +313,9 @@ export default function Game() {
     
     // Play combine sound
     playCombineSound();
+    
+    // Add 1 second delay to make the process feel more engaging
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     try {
       // Special case: Seed germination (three pathways)
