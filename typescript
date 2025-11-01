@@ -1,7 +1,11 @@
-const exists = ingredients.some((i) => i.name === newIngredient.name);
+// Check if this result already exists in player's inventory
+const exists = ingredients.some((i) => i.name === result.name);
+
 if (exists) {
   toast.info(`You already discovered ${result.name}!`);
 } else {
+  // Only add if new
+  const newIngredient: Ingredient = { ... };
   setIngredients((prev) => [...prev, newIngredient]);
   toast.success(`Discovered: ${result.name} ${result.emoji}`);
 }
