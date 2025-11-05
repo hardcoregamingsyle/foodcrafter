@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { IngredientCard } from "@/components/IngredientCard";
-import { CombineZone } from "@/components/CombineZone";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +24,12 @@ interface Ingredient {
   imageUrl?: string;
   isBase: boolean;
   madeFrom?: string[]; // parent ingredient names
+}
+
+interface WhiteboardIngredient extends Ingredient {
+  x: number;
+  y: number;
+  isDragging?: boolean;
 }
 
 // Indian cooking fundamentals as base ingredients
@@ -172,11 +177,12 @@ export default function Game() {
   const navigate = useNavigate();
   const [gameId, setGameId] = useState<string>("");
   const [ingredients, setIngredients] = useState<Ingredient[]>(BASE_INGREDIENTS);
-  const [draggedId, setDraggedId] = useState<string | null>(null);
-  const [combineSlot1, setCombineSlot1] = useState<Ingredient | null>(null);
-  const [combineSlot2, setCombineSlot2] = useState<Ingredient | null>(null);
+  const [whiteboardIngredients, setWhiteboardIngredients] = useState<WhiteboardIngredient[]>([]);
+  const [draggedFromPanel, setDraggedFromPanel] = useState<string | null>(null);
+  const [draggedOnBoard, setDraggedOnBoard] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const whiteboardRef = useRef<HTMLDivElement>(null);
 
   const saveGameState = useMutation(api.gameStates.saveGameState);
   const updateLastAccessed = useMutation(api.gameStates.updateLastAccessed);
@@ -267,46 +273,98 @@ export default function Game() {
     }
   }, [loadGameQuery, gameId]);
 
-  const handleDragStart = (id: string) => {
-    setDraggedId(id);
+  // Add ingredient to whiteboard
+  const addToWhiteboard = (ingredient: Ingredient, x: number, y: number) => {
+    const newWhiteboardIngredient: WhiteboardIngredient = {
+      ...ingredient,
+      id: `${ingredient.id}-${Date.now()}-${Math.random()}`,
+      x,
+      y,
+    };
+    setWhiteboardIngredients(prev => [...prev, newWhiteboardIngredient]);
   };
 
-  const handleDragEnd = () => {
-    setDraggedId(null);
+  // Handle drag from ingredient panel
+  const handlePanelDragStart = (id: string) => {
+    setDraggedFromPanel(id);
   };
 
-  const handleIngredientClick = async (id: string) => {
-    const ingredient = ingredients.find((i) => i.id === id);
-    if (!ingredient || isProcessing) return;
+  const handlePanelDragEnd = () => {
+    setDraggedFromPanel(null);
+  };
 
-    if (!combineSlot1) {
-      setCombineSlot1(ingredient);
-    } else if (!combineSlot2 && ingredient.id !== combineSlot1.id) {
-      setCombineSlot2(ingredient);
-      await combineIngredients(combineSlot1, ingredient);
-    } else if (ingredient.id === combineSlot1.id) {
-      // If clicking the same ingredient that's in slot 1, clear it
-      setCombineSlot1(null);
+  // Handle drop on whiteboard
+  const handleWhiteboardDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!draggedFromPanel || !whiteboardRef.current) return;
+
+    const rect = whiteboardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const ingredient = ingredients.find(i => i.id === draggedFromPanel);
+    if (ingredient) {
+      addToWhiteboard(ingredient, x, y);
+    }
+    setDraggedFromPanel(null);
+  };
+
+  const handleWhiteboardDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  // Handle dragging ingredients on whiteboard
+  const handleBoardItemDragStart = (id: string) => {
+    setDraggedOnBoard(id);
+    setWhiteboardIngredients(prev =>
+      prev.map(item => item.id === id ? { ...item, isDragging: true } : item)
+    );
+  };
+
+  const handleBoardItemDrag = (e: React.DragEvent, id: string) => {
+    if (!whiteboardRef.current) return;
+    const rect = whiteboardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (x > 0 && y > 0) {
+      setWhiteboardIngredients(prev =>
+        prev.map(item => item.id === id ? { ...item, x, y } : item)
+      );
     }
   };
 
-  const handleDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-    if (!draggedId) return;
+  const handleBoardItemDragEnd = async (id: string) => {
+    setWhiteboardIngredients(prev =>
+      prev.map(item => item.id === id ? { ...item, isDragging: false } : item)
+    );
 
-    const ingredient = ingredients.find((i) => i.id === draggedId);
-    if (!ingredient) return;
-
-    if (!combineSlot1) {
-      setCombineSlot1(ingredient);
-    } else if (!combineSlot2 && ingredient.id !== combineSlot1.id) {
-      setCombineSlot2(ingredient);
-      await combineIngredients(combineSlot1, ingredient);
+    // Check for overlaps
+    const draggedItem = whiteboardIngredients.find(item => item.id === id);
+    if (!draggedItem || isProcessing) {
+      setDraggedOnBoard(null);
+      return;
     }
-  };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
+    for (const item of whiteboardIngredients) {
+      if (item.id !== id && !item.isDragging) {
+        const distance = Math.sqrt(
+          Math.pow(draggedItem.x - item.x, 2) + Math.pow(draggedItem.y - item.y, 2)
+        );
+        
+        // If items are close enough (within 100px), combine them
+        if (distance < 100) {
+          await combineIngredients(draggedItem, item);
+          // Remove both ingredients from whiteboard after combining
+          setWhiteboardIngredients(prev =>
+            prev.filter(i => i.id !== id && i.id !== item.id)
+          );
+          break;
+        }
+      }
+    }
+
+    setDraggedOnBoard(null);
   };
 
   const combineIngredients = async (ing1: Ingredient, ing2: Ingredient) => {
@@ -433,8 +491,7 @@ export default function Game() {
       console.error(error);
     } finally {
       setIsProcessing(false);
-      setCombineSlot1(null);
-      setCombineSlot2(null);
+      setDraggedOnBoard(null);
     }
   };
 
@@ -461,8 +518,9 @@ export default function Game() {
     const newGameId = Math.random().toString(36).substring(2, 15);
     setGameId(newGameId);
     setIngredients(BASE_INGREDIENTS);
-    setCombineSlot1(null);
-    setCombineSlot2(null);
+    setWhiteboardIngredients([]);
+    setDraggedFromPanel(null);
+    setDraggedOnBoard(null);
     navigate("/game");
     toast.success("New game started!");
   };
@@ -499,30 +557,7 @@ export default function Game() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-[1fr_400px] gap-6">
-          {/* Combine Zone */}
-          <div className="space-y-6">
-            <CombineZone
-              ingredient1={combineSlot1}
-              ingredient2={combineSlot2}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              isProcessing={isProcessing}
-            />
-
-            <div className="text-center space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Discoveries: {ingredients.length}
-              </p>
-              <div className="text-xs text-muted-foreground bg-card border rounded-lg p-3">
-                <p className="font-semibold mb-1">💡 Seed Germination (3 ways):</p>
-                <p>Path 1: Water + Soil → Mud, then Mud + Seed → Random Seed! 🌱</p>
-                <p>Path 2: Seed + Soil → Soil with Seed, then + Water → Random Seed! 🌱</p>
-                <p>Path 3: Water + Seed → Sprouted Seeds, then + Soil → Random Seed! 🌱</p>
-              </div>
-            </div>
-          </div>
-
+        <div className="grid lg:grid-cols-[300px_1fr] gap-6">
           {/* Ingredients Panel */}
           <div className="lg:sticky lg:top-24 h-fit">
             <div className="bg-card border rounded-xl p-4 shadow-sm">
@@ -535,17 +570,101 @@ export default function Game() {
               <ScrollArea className="h-[calc(100vh-250px)]">
                 <div className="grid grid-cols-2 gap-3 pr-4">
                   {ingredients.map((ingredient, index) => (
-                    <IngredientCard
-                      key={ingredient.id}
-                      {...ingredient}
-                      onDragStart={handleDragStart}
-                      onDragEnd={handleDragEnd}
-                      onClick={handleIngredientClick}
-                      isNew={index >= BASE_INGREDIENTS.length && index === ingredients.length - 1}
-                    />
+                    <div key={ingredient.id}>
+                      <IngredientCard
+                        {...ingredient}
+                        onDragStart={handlePanelDragStart}
+                        onDragEnd={handlePanelDragEnd}
+                        isNew={index >= BASE_INGREDIENTS.length && index === ingredients.length - 1}
+                      />
+                    </div>
                   ))}
                 </div>
               </ScrollArea>
+              <div className="text-xs text-muted-foreground bg-card border rounded-lg p-3 mt-4">
+                <p className="font-semibold mb-1">💡 Seed Germination (3 ways):</p>
+                <p>Path 1: Water + Soil → Mud, then Mud + Seed → Random Seed! 🌱</p>
+                <p>Path 2: Seed + Soil → Soil with Seed, then + Water → Random Seed! 🌱</p>
+                <p>Path 3: Water + Seed → Sprouted Seeds, then + Soil → Random Seed! 🌱</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Whiteboard */}
+          <div className="space-y-4">
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">
+                Drag ingredients here and overlap them to combine! 🎨
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Discoveries: {ingredients.length} | On Board: {whiteboardIngredients.length}
+              </p>
+            </div>
+            
+            <div
+              ref={whiteboardRef}
+              className="relative bg-card border-4 border-dashed border-primary/30 rounded-xl min-h-[calc(100vh-250px)] overflow-hidden"
+              onDrop={handleWhiteboardDrop}
+              onDragOver={handleWhiteboardDragOver}
+            >
+              {whiteboardIngredients.length === 0 && (
+                <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                  <div className="text-center">
+                    <div className="text-6xl mb-4">🎨</div>
+                    <p className="font-semibold">Your Crafting Whiteboard</p>
+                    <p className="text-sm mt-2">Drag ingredients here to start crafting!</p>
+                  </div>
+                </div>
+              )}
+
+              {whiteboardIngredients.map((item) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                  style={{
+                    position: "absolute",
+                    left: item.x - 40,
+                    top: item.y - 40,
+                    cursor: "grab",
+                    opacity: item.isDragging ? 0.5 : 1,
+                  }}
+                  draggable
+                  onDragStart={() => handleBoardItemDragStart(item.id)}
+                  onDrag={(e) => handleBoardItemDrag(e as any, item.id)}
+                  onDragEnd={() => handleBoardItemDragEnd(item.id)}
+                  className="active:cursor-grabbing"
+                >
+                  <div className="bg-card border-2 border-primary/50 rounded-lg p-3 shadow-lg hover:shadow-xl transition-all">
+                    <div className="flex flex-col items-center gap-1">
+                      {item.imageUrl ? (
+                        <img
+                          src={item.imageUrl}
+                          alt={item.name}
+                          className="w-12 h-12 object-cover rounded-md"
+                        />
+                      ) : (
+                        <div className="text-4xl">{item.emoji}</div>
+                      )}
+                      <p className="text-xs font-medium text-center line-clamp-1 max-w-[80px]">
+                        {item.name}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+
+              {isProcessing && (
+                <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center">
+                  <div className="bg-card border-2 border-primary rounded-lg p-6 shadow-xl">
+                    <div className="flex items-center gap-3 text-primary">
+                      <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                      <span className="font-semibold text-lg">Creating magic...</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -31,7 +31,7 @@ export function IngredientCard({
       onDragStart={() => onDragStart(id)}
       onDragEnd={onDragEnd}
       onClick={() => onClick?.(id)}
-      className="cursor-pointer active:cursor-grabbing"
+      className="cursor-grab active:cursor-grabbing"
     >
       <Card className="p-3 hover:shadow-lg transition-all hover:scale-105 border-2">
         <div className="flex flex-col items-center gap-2">
