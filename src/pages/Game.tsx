@@ -354,7 +354,11 @@ export default function Game() {
         
         // If items are close enough (within 100px), combine them
         if (distance < 100) {
-          await combineIngredients(draggedItem, item);
+          // Calculate midpoint for new ingredient placement
+          const midX = (draggedItem.x + item.x) / 2;
+          const midY = (draggedItem.y + item.y) / 2;
+          
+          await combineIngredients(draggedItem, item, midX, midY);
           // Remove both ingredients from whiteboard after combining
           setWhiteboardIngredients(prev =>
             prev.filter(i => i.id !== id && i.id !== item.id)
@@ -367,7 +371,7 @@ export default function Game() {
     setDraggedOnBoard(null);
   };
 
-  const combineIngredients = async (ing1: Ingredient, ing2: Ingredient) => {
+  const combineIngredients = async (ing1: Ingredient, ing2: Ingredient, x?: number, y?: number) => {
     setIsProcessing(true);
     
     // Play combine sound and store reference
@@ -399,6 +403,12 @@ export default function Game() {
         const exists = ingredients.some((i) => i.name === newIngredient.name);
         if (!exists) {
           setIngredients((prev) => [...prev, newIngredient]);
+          
+          // Add to whiteboard at combination location if coordinates provided
+          if (x !== undefined && y !== undefined) {
+            addToWhiteboard(newIngredient, x, y);
+          }
+          
           toast.success(`🌱 Germinated: ${randomSeed.name} ${randomSeed.emoji}`, {
             description: `Category: ${randomSeed.category}`,
           });
@@ -421,6 +431,12 @@ export default function Game() {
         const exists = ingredients.some((i) => i.name === newIngredient.name);
         if (!exists) {
           setIngredients((prev) => [...prev, newIngredient]);
+          
+          // Add to whiteboard at combination location if coordinates provided
+          if (x !== undefined && y !== undefined) {
+            addToWhiteboard(newIngredient, x, y);
+          }
+          
           toast.success(`🌱 Germinated: ${randomSeed.name} ${randomSeed.emoji}`, {
             description: `Category: ${randomSeed.category}`,
           });
@@ -443,6 +459,12 @@ export default function Game() {
         const exists = ingredients.some((i) => i.name === newIngredient.name);
         if (!exists) {
           setIngredients((prev) => [...prev, newIngredient]);
+          
+          // Add to whiteboard at combination location if coordinates provided
+          if (x !== undefined && y !== undefined) {
+            addToWhiteboard(newIngredient, x, y);
+          }
+          
           toast.success(`🌱 Germinated: ${randomSeed.name} ${randomSeed.emoji}`, {
             description: `Category: ${randomSeed.category}`,
           });
@@ -475,6 +497,11 @@ export default function Game() {
         };
         
         setIngredients((prev) => [...prev, newIngredient]);
+        
+        // Add to whiteboard at combination location if coordinates provided
+        if (x !== undefined && y !== undefined) {
+          addToWhiteboard(newIngredient, x, y);
+        }
         
         if (result.isNewDiscovery) {
           // Global new discovery - trigger celebration
